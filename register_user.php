@@ -74,7 +74,7 @@
     <div class="form-group student-fields" style="display:none;">
         <label for="id_fingerprint">Fingerprint</label>
         <div class="input-group">
-            <input type="text" name="fingerprint" maxlength="255" id="id_fingerprint" class="form-control" placeholder="Click 'Capture' to scan" readonly>
+            <input type="text" name="fingerprint"  maxlength="255" id="id_fingerprint" class="form-control" placeholder="Click 'Capture' to scan" readonly>
             <div class="input-group-append">
                 <button class="btn btn-info" type="button" id="capture_fingerprint">Capture Fingerprint</button>
             </div>
@@ -156,6 +156,32 @@
         });
     });
 </script>
+<script>
+$(document).ready(function(){
+    function fetchFingerNumber() {
+        $.ajax({
+            url: "getfinger.php",  // URL to fetch data
+            type: "GET",
+            success: function(response) {
+                let fingerNumber = response.trim(); // Remove any whitespace
+
+                if (fingerNumber === "0") {
+                    $("#id_fingerprint").val(""); // Clear the input field if response is 0
+                } else {
+                    $("#id_fingerprint").val(fingerNumber); // Set the value
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error fetching finger number:", error);
+            }
+        });
+    }
+
+    // Call function every 2 seconds
+    setInterval(fetchFingerNumber, 2000);
+});
+</script>
+
 <script>
     $(document).ready(function() {
         // Toggle fields based on user type selection

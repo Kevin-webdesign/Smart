@@ -39,6 +39,10 @@ try {
         $fingerprint = $_POST['fingerprint'];
         $stmt = $pdo->prepare("INSERT INTO StudentProfile (user_id, session, student_id, fingerprint) VALUES (?, ?, ?, ?)");
         $stmt->execute([$user_id, $session, $student_id, $fingerprint]);
+
+         // After inserting the student profile, update the status_finger table
+         $stmt = $pdo->prepare("UPDATE status_finger SET f_status = 0 WHERE id = 1");
+         $stmt->execute();
     } elseif ($role == 'Lecture') {
         $department = $_POST['department'];
         $stmt = $pdo->prepare("INSERT INTO LecturerProfile (user_id, department) VALUES (?, ?)");

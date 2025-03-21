@@ -13,6 +13,7 @@ Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
 const int wifiLedPin = D5;
 const int scanLedPin = D0;
 const int enrollLedPin = D3;
+const int buttonPin = D6;  // Button pin to switch modes
 
 void sendCompletionNotification(uint8_t id) {
     HTTPClient http;
@@ -22,7 +23,7 @@ void sendCompletionNotification(uint8_t id) {
     int httpCode = http.GET();
     if (httpCode > 0) {
         Serial.println("Notification sent successfully!");
-        delay(2000);
+        delay(2000); // Add a small delay before proceeding
     } else {
         Serial.println("Failed to send notification.");
     }
@@ -47,6 +48,10 @@ uint8_t fetchEnrollmentID() {
 }
 
 void enrollFingerprint() {
+    static unsigned long lastEnrollTime = 0;
+    if (millis() - lastEnrollTime < 100) return; // Prevent frequent scanning
+    lastEnrollTime = millis();
+
     int p = -1;
     uint8_t id = 0;
     Serial.println("Starting fingerprint enrollment...");
@@ -54,9 +59,10 @@ void enrollFingerprint() {
 
     // First fingerprint scan
     do {
+        checkFingerprintMode();
         Serial.println("Waiting for first finger placement...");
         p = finger.getImage();
-        delay(100);
+        delay(100); // Non-blocking, short delay
     } while (p != FINGERPRINT_OK);
     
     Serial.println("Image taken. Processing...");
@@ -120,13 +126,17 @@ void enrollFingerprint() {
 }
 
 void scanFingerprint() {
+    static unsigned long lastScanTime = 0;
+    if (millis() - lastScanTime < 100) return; // Prevent frequent scanning
+    lastScanTime = millis();
+
     int p = -1;
     Serial.println("Waiting for fingerprint...");
     digitalWrite(scanLedPin, HIGH);
 
     while (p != FINGERPRINT_OK) {
         p = finger.getImage();
-        delay(500);
+        delay(500);  // Short delay to prevent WDT reset
     }
 
     Serial.println("Image taken. Processing...");
@@ -152,24 +162,17 @@ void scanFingerprint() {
 }
 
 void checkFingerprintMode() {
-    HTTPClient http;
-    http.begin(client, "http://192.168.1.81/smart/finger_mode.php");
-    int httpCode = http.GET();
-    
-    if (httpCode > 0) {
-        String payload = http.getString();
-        Serial.print("Fingerprint mode status: ");
-        Serial.println(payload);
-        
-        if (payload == "1") {
+    static unsigned long lastActionTime = 0;
+    if (millis() - lastActionTime >= 500) { // Prevents too frequent checking
+        lastActionTime = millis();
+        int x = digitalRead(buttonPin);
+        Serial.println(x);
+        if (x == 1){
             enrollFingerprint();
         } else {
             scanFingerprint();
         }
-    } else {
-        Serial.println("Failed to connect to server for mode check.");
     }
-    http.end();
 }
 
 void setup() {
@@ -178,34 +181,39 @@ void setup() {
     pinMode(wifiLedPin, OUTPUT);
     pinMode(scanLedPin, OUTPUT);
     pinMode(enrollLedPin, OUTPUT);
+    pinMode(buttonPin, INPUT_PULLUP);  // Set button pin to input with pull-up resistor
 
     Serial.print("Connecting to WiFi...");
-    WiFi.begin(ssid, password);
-    
-    while (WiFi.status() != WL_CONNECTED) {
+    unsigned long wifiStartTime = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - wifiStartTime < 10000) {  // Wait for 10 seconds max
         digitalWrite(wifiLedPin, LOW);
         delay(500);
         digitalWrite(wifiLedPin, HIGH);
         delay(500);
     }
 
-    digitalWrite(wifiLedPin, HIGH);
-    Serial.println("Connected to WiFi");
+    if (WiFi.status() == WL_CONNECTED) {
+        digitalWrite(wifiLedPin, HIGH);
+        Serial.println("Connected to WiFi");
+    } else {
+        Serial.println("Failed to connect to WiFi!");
+    }
 
     finger.begin(57600);
     if (!finger.verifyPassword()) {
         Serial.println("Fingerprint sensor not found!");
         while (1) delay(1);
     }
-    
     Serial.println("Fingerprint sensor initialized!");
 }
 
 void loop() {
     static unsigned long lastModeCheck = 0;
 
-    if (millis() - lastModeCheck > 5000) {  // Check mode every 5 seconds
+    if (millis() - lastModeCheck > 2000) {  // Check mode every 2 seconds
         lastModeCheck = millis();
         checkFingerprintMode();
     }
+
+    yield();  // Ensure the watchdog timer is reset
 }

@@ -1,3 +1,20 @@
+<?php
+// Database connection
+include("../config/connection.php");
+// Query to fetch lecturers with department data
+$sql = "SELECT 
+            b.first_name, 
+            b.second_name, 
+            b.email, 
+            b.telephone, 
+            lp.department 
+        FROM baseuser b
+        INNER JOIN lecturerprofile lp ON b.id = lp.user_id
+        WHERE b.user_type = 'Lecture'";
+
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <!-- HEADER / LINKS / BASIC SCRIPTS -->
@@ -17,26 +34,7 @@
         <div class="container">
           <div class="page-inner">
             <div class="page-header">
-              <h3 class="fw-bold mb-3"></h3>
-              <ul class="breadcrumbs mb-3">
-                <li class="nav-home">
-                  <a href="#">
-                    <i class="icon-home"></i>
-                  </a>
-                </li>
-                <li class="separator">
-                  <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                  <a href="#"></a>
-                </li>
-                <li class="separator">
-                  <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                  <a href="#"></a>
-                </li>
-              </ul>
+              <h3 class="fw-bold mb-3">Lecture Records</h3>
             </div>
           </div>
 
@@ -53,17 +51,34 @@
                 </tr>
               </thead>
               <tbody>
-               
+                <?php
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        echo "<tr>
+                                <td>{$row['first_name']}</td>
+                                <td>{$row['second_name']}</td>
+                                <td>{$row['email']}</td>
+                                <td>{$row['telephone']}</td>
+                                <td>{$row['department']}</td> 
+                            </tr>";
+                    }
+                } else {
+                    echo "<tr><td colspan='5'>No lecture records found</td></tr>";
+                }
+                ?>
               </tbody>
             </table>
-
-            </div>
           </div>
-
-          <?php include("../layouts/admin/footer.php"); ?>
         </div>
+
+        <?php include("../layouts/admin/footer.php"); ?>
       </div>
     </div>
     <?php include("../layouts/scripts.php"); ?>
   </body>
 </html>
+
+<?php
+// Close the database connection
+$conn->close();
+?>

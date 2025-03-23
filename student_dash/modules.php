@@ -1,4 +1,12 @@
+<?php
+include("../config/connection.php");
 
+// Fetch registered modules
+$regsql = "SELECT name, code, description, lecturer FROM moduleregistration";
+$regresult = $conn->query($regsql);
+
+$conn->close();
+?>
 <!DOCTYPE html>
 <html lang="en">
   <!-- HEADER / LINKS /  BASIC SCRIPTS -->
@@ -49,12 +57,26 @@
         <tr>
             <th>Name</th>
             <th>Code</th>
-            <th>Classroom</th>
+            <th>Description</th>
             <th>Lecture</th>
         </tr>
     </thead>
     <tbody>
-       
+      <?php
+      if ($regresult->num_rows > 0) {
+                // Output data of each row
+                while ($row = $regresult->fetch_assoc()) {
+                  echo "<tr>
+                          <td>" . htmlspecialchars($row['name']) . "</td>
+                          <td>" . htmlspecialchars($row['code']) . "</td>
+                          <td>" . htmlspecialchars($row['description']) . "</td>
+                          <td>" . htmlspecialchars($row['lecturer']) . "</td>
+                        </tr>";
+                }
+              } else {
+                echo "<tr><td colspan='4'>No modules registered yet.</td></tr>";
+              }
+              ?>
     </tbody>
 </table>
 <?php include("../layouts/student/footer.php");?>

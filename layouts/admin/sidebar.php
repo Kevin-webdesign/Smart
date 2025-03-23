@@ -42,7 +42,7 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
                     </a>
                 </li>
                 <li class="nav-item <?php echo ($current_page == 'attendance_record') ? 'active' : ''; ?>">
-                    <a href="#">
+                    <a href="attendance.php">
                         <i class="fas fa-chart-line"></i>
                         <p>Attendance Record</p>
                     </a>

@@ -26,7 +26,7 @@
             <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
                 <li class="nav-item topbar-user dropdown hidden-caret">
                     <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" id="profileDropdown">
-                        <img src="assets/img/profile.jpg" alt="Profile" class="avatar-img rounded-circle" onerror="this.onerror=null; this.src='assets/img/default-profile.jpg'"/>
+                        <img src="assets/img/profile.jpg" alt="Profile" class="avatar-img rounded-circle" onerror="this.onerror=null; this.src='../assets/img/profile.jpg'"/>
                         <span class="profile-username">
                             <?php if (isset($_SESSION['user'])) { ?>
                                 <p>Welcome, <strong><?php echo $_SESSION['user']['first_name'] . ' ' . $_SESSION['user']['second_name']; ?></strong></p>

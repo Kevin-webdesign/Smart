@@ -1,4 +1,12 @@
+<?php
+include("../config/connection.php");
+                  // Fetch courses and their corresponding lecturers
+      $sql = "SELECT name, building, floor, room_number, capacity
+              FROM classroom";
+      $result = $conn->query($sql);
 
+      $conn->close();
+       ?>
 <!DOCTYPE html>
 <html lang="en">
   <!-- HEADER / LINKS /  BASIC SCRIPTS -->
@@ -43,7 +51,7 @@
           </div>
           
            <!-- content -->
-<a class="btn btn-primary" href="{% url 'classroom_create' %}">
+<a class="btn btn-primary" href="classroom_form.php">
     <i class="fas fa-users"></i>
     <p>Classrooms</p>
 </a>
@@ -60,7 +68,22 @@
         </tr>
     </thead>
     <tbody>
-      
+      <?php
+          if ($result->num_rows > 0) {
+            // Output data of each row
+            while($row = $result->fetch_assoc()) {
+                echo "<tr>
+                        <td>" . $row['name'] . "</td>
+                        <td>" . $row['building'] . "</td>
+                        <td>" . $row['floor'] . "</td>
+                        <td>" . $row['room_number'] . "</td>
+                        <td>" . $row['capacity']. "</td>
+                      </tr>";
+            }
+        } else {
+            echo "<tr><td colspan='5'>No courses found</td></tr>";
+        }
+      ?>
     </tbody>
 </table>
 <?php include("../layouts/admin/footer.php");?>

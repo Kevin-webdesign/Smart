@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 23, 2025 at 05:24 PM
+-- Generation Time: Mar 23, 2025 at 05:39 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -49,7 +49,7 @@ INSERT INTO `adminprofile` (`id`, `user_id`, `is_head_of_faculty`) VALUES
 CREATE TABLE `attendance` (
   `id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
-  `class_session_id` int(11) NOT NULL,
+  `course` varchar(250) NOT NULL,
   `entry_time` datetime DEFAULT NULL,
   `entry_fingerprint_verified` tinyint(1) DEFAULT 0,
   `exit_time` datetime DEFAULT NULL,

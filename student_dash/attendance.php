@@ -1,13 +1,11 @@
 <?php
-
+// Include database connection
 include("../config/connection.php");
 
 // Fetch data from the attendance table
-$sql = "SELECT * FROM attendance";
+$sql = "SELECT `course`, `entry_time`, `entry_fingerprint_verified`, `exit_time`, `exit_fingerprint_verified`, `created_at`, `updated_at`, `had_extended_absence` FROM `attendance`";
 $result = $conn->query($sql);
-
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
   <!-- HEADER / LINKS /  BASIC SCRIPTS -->
@@ -57,9 +55,7 @@ $result = $conn->query($sql);
                     <table class="table table-striped">
                       <thead>
                         <tr>
-                          <th>ID</th>
-                          <th>Student ID</th>
-                          <th>course</th>
+                          <th>Module</th>
                           <th>Entry Time</th>
                           <th>Entry Fingerprint Verified</th>
                           <th>Exit Time</th>
@@ -69,14 +65,11 @@ $result = $conn->query($sql);
                       </thead>
                       <tbody>
                         <?php
-                        // Include database connection
 
                         if ($result->num_rows > 0) {
                           // Output data of each row
                           while($row = $result->fetch_assoc()) {
                             echo "<tr>
-                                    <td>".$row["id"]."</td>
-                                    <td>".$row["student_id"]."</td>
                                     <td>".$row["course"]."</td>
                                     <td>".$row["entry_time"]."</td>
                                     <td>".($row["entry_fingerprint_verified"] ? 'Yes' : 'No')."</td>

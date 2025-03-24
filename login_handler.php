@@ -21,7 +21,7 @@ $password = $_POST['password'];
 
 // Fetch user from the database
 try {
-    $stmt = $pdo->prepare("SELECT id, first_name, password, user_type FROM baseuser WHERE email = ?");
+    $stmt = $pdo->prepare("SELECT id, second_name, password, user_type, email FROM baseuser WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
@@ -29,7 +29,8 @@ try {
         // Login successful
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_type'] = $user['user_type'];
-        $_SESSION['first_name'] = $user['first_name'];
+        $_SESSION['second_name'] = $user['second_name'];
+        $_SESSION['email'] = $user['email'];
 
         // Determine redirect URL based on user type
         switch ($user['user_type']) {

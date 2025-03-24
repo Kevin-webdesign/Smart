@@ -62,7 +62,7 @@ void enrollFingerprint() {
         checkFingerprintMode();
         Serial.println("Waiting for first finger placement...");
         p = finger.getImage();
-        delay(100); // Non-blocking, short delay
+        delay(500); // Non-blocking, short delay
     } while (p != FINGERPRINT_OK);
     
     Serial.println("Image taken. Processing...");

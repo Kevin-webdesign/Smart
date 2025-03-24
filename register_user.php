@@ -62,15 +62,7 @@
             <option value="WEEKEND">Weekend</option>
         </select>
     </div>
-    <div class="form-group student-fields" style="display:none;">
-        <label for="id_student_id">Student ID</label>
-        <select name="student_id" id="id_student_id" class="form-control">
-            <option value="">-- Select ID --</option>
-            <?php for ($i = 1; $i <= 7; $i++): ?>
-                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-            <?php endfor; ?>
-        </select>
-    </div>
+    
     <div class="form-group student-fields" style="display:none;">
         <label for="id_fingerprint">Fingerprint</label>
         <div class="input-group">
@@ -132,7 +124,6 @@
                 password: $('#id_password').val(),
                 role: $('#role').val(),
                 session: $('#id_session').val(),
-                student_id: $('#id_student_id').val(),
                 fingerprint: $('#id_fingerprint').val(),
                 is_hod: $('#id_is_head_of_faculty').is(':checked') ? 1 : 0,
                 department: $('#id_department').val()

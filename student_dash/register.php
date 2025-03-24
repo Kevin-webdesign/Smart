@@ -1,4 +1,13 @@
- <?php
+<?php
+session_start(); // Start the session
+
+// Check if user_id is set in the session
+if (!isset($_SESSION['user_id'])) {
+    die("User ID not found in session. Please log in again.");
+}
+
+$user_id = $_SESSION['user_id']; // Get user ID from session
+
 include("../config/connection.php");
 
 // Fetch courses and their corresponding lecturers
@@ -14,12 +23,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
     $lecturer = $_POST['lecturer'];
 
     // Insert into moduleregistration table
-    $insert_sql = "INSERT INTO moduleregistration (name, code, description, `Sessions Offered`, Lecturer) 
-                   VALUES (?, ?, ?, ?, ?)";
+    $insert_sql = "INSERT INTO moduleregistration (name, code, description, `Sessions Offered`, Lecturer, user_id) 
+                   VALUES (?, ?, ?, ?, ?, ?)";
     
     // Use prepared statements to prevent SQL injection
     $stmt = $conn->prepare($insert_sql);
-    $stmt->bind_param("sssss", $module_name, $module_code, $module_description, $sessions_offered, $lecturer);
+    $stmt->bind_param("sssssi", $module_name, $module_code, $module_description, $sessions_offered, $lecturer, $user_id);
     
     if ($stmt->execute()) {
         echo "<script>alert('Module registered successfully!');</script>";
@@ -29,8 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
     $stmt->close();
 }
 
-// Fetch registered modules
-$regsql = "SELECT name, code, description, lecturer FROM moduleregistration";
+// Fetch registered modules with user information
+$regsql = "SELECT moduleregistration.name, moduleregistration.code, moduleregistration.description, 
+                  moduleregistration.lecturer, baseuser.username 
+           FROM moduleregistration 
+           JOIN baseuser ON moduleregistration.user_id = baseuser.id";
 $regresult = $conn->query($regsql);
 
 $conn->close();
@@ -80,7 +92,7 @@ $conn->close();
 
           <!-- Content -->
           <h2>Available Modules</h2>
-          <table class="table">
+          <table class="table" id="available-modules">
             <thead>
               <tr>
                 <th>Name</th>
@@ -109,6 +121,7 @@ $conn->close();
                               <input type='hidden' name='module_description' value='" . htmlspecialchars($row['description']) . "'>
                               <input type='hidden' name='sessions_offered' value='" . htmlspecialchars($row['sessions_offered']) . "'>
                               <input type='hidden' name='lecturer' value='" . htmlspecialchars($row['lecturer']) . "'>
+                              <input type='hidden' name='user_id' value='" . $user_id . "'>
                               <button type='submit' name='register' class='btn btn-success btn-sm'>Register</button>
                             </form>
                             <button class='btn btn-danger btn-sm'>Reject</button>
@@ -123,31 +136,18 @@ $conn->close();
           </table>
 
           <h2>Registered Modules</h2>
-          <table class="table">
+          <table class="table" id="registered-modules">
             <thead>
               <tr>
                 <th>Name</th>
                 <th>Code</th>
                 <th>Description</th>
                 <th>Lecturer</th>
+                <th>Registered By</th>
               </tr>
             </thead>
             <tbody>
-              <?php
-              if ($regresult->num_rows > 0) {
-                // Output data of each row
-                while ($row = $regresult->fetch_assoc()) {
-                  echo "<tr>
-                          <td>" . htmlspecialchars($row['name']) . "</td>
-                          <td>" . htmlspecialchars($row['code']) . "</td>
-                          <td>" . htmlspecialchars($row['description']) . "</td>
-                          <td>" . htmlspecialchars($row['lecturer']) . "</td>
-                        </tr>";
-                }
-              } else {
-                echo "<tr><td colspan='4'>No modules registered yet.</td></tr>";
-              }
-              ?>
+           
             </tbody>
           </table>
 
@@ -156,5 +156,23 @@ $conn->close();
       </div>
     </div>
     <?php include("../layouts/scripts.php"); ?>
+
+    <!-- JavaScript to hide registered modules -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const registeredModules = document.querySelectorAll('#registered-modules tbody tr');
+          const availableModules = document.querySelectorAll('#available-modules tbody tr');
+
+          registeredModules.forEach(registeredModule => {
+              const registeredCode = registeredModule.querySelector('td:nth-child(2)').textContent;
+              availableModules.forEach(availableModule => {
+                  const availableCode = availableModule.querySelector('td:nth-child(2)').textContent;
+                  if (registeredCode === availableCode) {
+                      availableModule.style.display = 'none';
+                  }
+              });
+          });
+      });
+    </script>
   </body>
 </html>

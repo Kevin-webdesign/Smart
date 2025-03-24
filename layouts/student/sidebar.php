@@ -36,8 +36,8 @@ $currentUrl = basename($_SERVER['PHP_SELF']); // Example to get the current scri
                         <p>Modules Registration</p>
                     </a>
                 </li>
-                <li class="nav-item <?php echo ($currentUrl == 'attendance_record.php') ? 'active' : ''; ?>">
-                    <a href="attendance.php">
+                <li class="nav-item <?php echo ($currentUrl == 'attend.php') ? 'active' : ''; ?>">
+                    <a href="attend.php">
                         <i class="fas fa-chart-line"></i>
                         <p>Attendance Record</p>
                     </a>

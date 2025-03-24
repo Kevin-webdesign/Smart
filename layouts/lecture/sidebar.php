@@ -1,6 +1,6 @@
 <?php
 // Assuming you have a function to get the current URL or route name
-$currentUrl = basename($_SERVER['PHP_SELF']); // Example to get the current script name
+$currentUrl = basename($_SERVER['PHP_SELF']); 
 ?>
 
 <aside class="sidebar">
@@ -42,11 +42,11 @@ $currentUrl = basename($_SERVER['PHP_SELF']); // Example to get the current scri
                         <p>Modules</p>
                     </a>
                 </li>
-                <li class="nav-item <?php echo ($current_page == 'settings.php') ? 'active' : ''; ?>">
-                    <!-- <a href="settings.php">
-                        <i class="fas fa-cog fa-spin"></i>
-                        <p>Settings</p>
-                    </a> -->
+                <li class="nav-item <?php echo ($current_page == 'viewattend.php') ? 'active' : ''; ?>">
+                    <a href="viewattend.php">
+                        <i class="fas fa-chart-line"></i>
+                        <p>attendance</p>
+                    </a>
                 </li>
             </ul>
         </div>

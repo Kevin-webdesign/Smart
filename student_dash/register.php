@@ -1,16 +1,15 @@
 <?php
-session_start(); // Start the session
+session_start();
 
-// Check if user_id is set in the session
+// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     die("User ID not found in session. Please log in again.");
 }
 
-$user_id = $_SESSION['user_id']; // Get user ID from session
-
+$user_id = $_SESSION['user_id'];
 include("../config/connection.php");
 
-// Fetch courses and their corresponding lecturers
+// Fetch all available courses
 $sql = "SELECT name, code, description, sessions_offered, lecturer FROM course";
 $result = $conn->query($sql);
 
@@ -22,157 +21,178 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
     $sessions_offered = $_POST['sessions_offered'];
     $lecturer = $_POST['lecturer'];
 
-    // Insert into moduleregistration table
-    $insert_sql = "INSERT INTO moduleregistration (name, code, description, `Sessions Offered`, Lecturer, user_id) 
-                   VALUES (?, ?, ?, ?, ?, ?)";
+    // Check if already registered
+    $check_sql = "SELECT * FROM moduleregistration WHERE code = ? AND user_id = ?";
+    $check_stmt = $conn->prepare($check_sql);
+    $check_stmt->bind_param("si", $module_code, $user_id);
+    $check_stmt->execute();
     
-    // Use prepared statements to prevent SQL injection
-    $stmt = $conn->prepare($insert_sql);
-    $stmt->bind_param("sssssi", $module_name, $module_code, $module_description, $sessions_offered, $lecturer, $user_id);
-    
-    if ($stmt->execute()) {
-        echo "<script>alert('Module registered successfully!');</script>";
+    if ($check_stmt->get_result()->num_rows > 0) {
+        echo "<script>alert('You are already registered for this module!');</script>";
     } else {
-        echo "<script>alert('Error: " . addslashes($stmt->error) . "');</script>";
+        // Register the module
+        $insert_sql = "INSERT INTO moduleregistration (name, code, description, sessions_offered, lecturer, user_id) 
+                      VALUES (?, ?, ?, ?, ?, ?)";
+        
+        $stmt = $conn->prepare($insert_sql);
+        $stmt->bind_param("sssssi", $module_name, $module_code, $module_description, 
+                         $sessions_offered, $lecturer, $user_id);
+        
+        if ($stmt->execute()) {
+            echo "<script>alert('Module registered successfully!');</script>";
+            echo "<script>window.location.href=window.location.href;</script>";
+            exit();
+        } else {
+            echo "<script>alert('Error: " . addslashes($stmt->error) . "');</script>";
+        }
+        $stmt->close();
     }
-    $stmt->close();
+    $check_stmt->close();
 }
 
-// Fetch registered modules with user information
-$regsql = "SELECT moduleregistration.name, moduleregistration.code, moduleregistration.description, 
-                  moduleregistration.lecturer, baseuser.username 
-           FROM moduleregistration 
-           JOIN baseuser ON moduleregistration.user_id = baseuser.id";
-$regresult = $conn->query($regsql);
+// Fetch user's registered modules
+$regsql = "SELECT m.name, m.code, m.description, m.sessions_offered, m.lecturer 
+           FROM moduleregistration m
+           WHERE m.user_id = ?";
+$regstmt = $conn->prepare($regsql);
+$regstmt->bind_param("i", $user_id);
+$regstmt->execute();
+$regresult = $regstmt->get_result();
 
 $conn->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-  <!-- HEADER / LINKS / BASIC SCRIPTS -->
   <?php include("../layouts/header.php"); ?>
-  <!-- END HEADER / LINKS / BASIC SCRIPTS -->
+  
   <body>
     <div class="wrapper">
-      <!-- Sidebar -->
       <?php include("../layouts/student/sidebar.php"); ?>
-      <!-- End Sidebar -->
-
+      
       <div class="main-panel">
-        <!-- NAV BAR AND LOGO DIV -->
         <?php include("../layouts/navbar.php"); ?>
-        <!-- END NAV BAR AND LOGO DIV -->
-
+        
         <div class="container">
           <div class="page-inner">
             <div class="page-header">
-              <h3 class="fw-bold mb-3"></h3>
+              <h3 class="fw-bold mb-3">Module Registration</h3>
               <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
-                  <a href="#">
-                    <i class="icon-home"></i>
-                  </a>
+                  <a href="#"><i class="icon-home"></i></a>
                 </li>
-                <li class="separator">
-                  <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                  <a href="#"></a>
-                </li>
-                <li class="separator">
-                  <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                  <a href="#"></a>
-                </li>
+                <li class="separator"><i class="icon-arrow-right"></i></li>
+                <li class="nav-item"><a href="#">Modules</a></li>
               </ul>
             </div>
+
+            <!-- Available Modules -->
+            <div class="card">
+              <div class="card-header">
+                <h4 class="card-title">Available Modules</h4>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped" id="available-modules">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th>Sessions</th>
+                        <th>Lecturer</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php if ($result->num_rows > 0): ?>
+                        <?php while ($row = $result->fetch_assoc()): ?>
+                          <?php
+                          // Check if already registered
+                          $is_registered = false;
+                          $regresult->data_seek(0);
+                          while ($reg_row = $regresult->fetch_assoc()) {
+                              if ($reg_row['code'] == $row['code']) {
+                                  $is_registered = true;
+                                  break;
+                              }
+                          }
+                          $regresult->data_seek(0);
+                          
+                          if (!$is_registered): ?>
+                            <tr>
+                              <td><?= htmlspecialchars($row['name']) ?></td>
+                              <td><?= htmlspecialchars($row['code']) ?></td>
+                              <td><?= htmlspecialchars($row['description']) ?></td>
+                              <td><?= htmlspecialchars($row['sessions_offered']) ?></td>
+                              <td><?= htmlspecialchars($row['lecturer']) ?></td>
+                              <td>
+                                <form method="POST">
+                                  <input type="hidden" name="module_code" value="<?= htmlspecialchars($row['code']) ?>">
+                                  <input type="hidden" name="module_name" value="<?= htmlspecialchars($row['name']) ?>">
+                                  <input type="hidden" name="module_description" value="<?= htmlspecialchars($row['description']) ?>">
+                                  <input type="hidden" name="sessions_offered" value="<?= htmlspecialchars($row['sessions_offered']) ?>">
+                                  <input type="hidden" name="lecturer" value="<?= htmlspecialchars($row['lecturer']) ?>">
+                                  <button type="submit" name="register" class="btn btn-success btn-sm">
+                                    <i class="fa fa-plus"></i> Register
+                                  </button>
+                                </form>
+                              </td>
+                            </tr>
+                          <?php endif; ?>
+                        <?php endwhile; ?>
+                      <?php else: ?>
+                        <tr><td colspan="6" class="text-center">No available modules found</td></tr>
+                      <?php endif; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Registered Modules -->
+            <div class="card mt-4">
+              <div class="card-header">
+                <h4 class="card-title">My Registered Modules</h4>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped" id="registered-modules">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th>Sessions</th>
+                        <th>Lecturer</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php if ($regresult->num_rows > 0): ?>
+                        <?php while ($reg_row = $regresult->fetch_assoc()): ?>
+                          <tr>
+                            <td><?= htmlspecialchars($reg_row['name']) ?></td>
+                            <td><?= htmlspecialchars($reg_row['code']) ?></td>
+                            <td><?= htmlspecialchars($reg_row['description']) ?></td>
+                            <td><?= htmlspecialchars($reg_row['sessions_offered']) ?></td>
+                            <td><?= htmlspecialchars($reg_row['lecturer']) ?></td>
+                          </tr>
+                        <?php endwhile; ?>
+                      <?php else: ?>
+                        <tr><td colspan="5" class="text-center">No registered modules yet</td></tr>
+                      <?php endif; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <!-- Content -->
-          <h2>Available Modules</h2>
-          <table class="table" id="available-modules">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Code</th>
-                <th>Description</th>
-                <th>Sessions Offered</th>
-                <th>Lecturer</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php
-              if ($result->num_rows > 0) {
-                // Output data of each row
-                while ($row = $result->fetch_assoc()) {
-                  echo "<tr>
-                          <td>" . htmlspecialchars($row['name']) . "</td>
-                          <td>" . htmlspecialchars($row['code']) . "</td>
-                          <td>" . htmlspecialchars($row['description']) . "</td>
-                          <td>" . htmlspecialchars($row['sessions_offered']) . "</td>
-                          <td>" . htmlspecialchars($row['lecturer']) . "</td>
-                          <td>
-                            <form method='POST' style='display:inline;'>
-                              <input type='hidden' name='module_code' value='" . htmlspecialchars($row['code']) . "'>
-                              <input type='hidden' name='module_name' value='" . htmlspecialchars($row['name']) . "'>
-                              <input type='hidden' name='module_description' value='" . htmlspecialchars($row['description']) . "'>
-                              <input type='hidden' name='sessions_offered' value='" . htmlspecialchars($row['sessions_offered']) . "'>
-                              <input type='hidden' name='lecturer' value='" . htmlspecialchars($row['lecturer']) . "'>
-                              <input type='hidden' name='user_id' value='" . $user_id . "'>
-                              <button type='submit' name='register' class='btn btn-success btn-sm'>Register</button>
-                            </form>
-                            <button class='btn btn-danger btn-sm'>Reject</button>
-                          </td>
-                        </tr>";
-                }
-              } else {
-                echo "<tr><td colspan='6'>No courses found</td></tr>";
-              }
-              ?>
-            </tbody>
-          </table>
-
-          <h2>Registered Modules</h2>
-          <table class="table" id="registered-modules">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Code</th>
-                <th>Description</th>
-                <th>Lecturer</th>
-                <th>Registered By</th>
-              </tr>
-            </thead>
-            <tbody>
-           
-            </tbody>
-          </table>
-
+          
           <?php include("../layouts/student/footer.php"); ?>
         </div>
       </div>
     </div>
+    
     <?php include("../layouts/scripts.php"); ?>
-
-    <!-- JavaScript to hide registered modules -->
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-          const registeredModules = document.querySelectorAll('#registered-modules tbody tr');
-          const availableModules = document.querySelectorAll('#available-modules tbody tr');
-
-          registeredModules.forEach(registeredModule => {
-              const registeredCode = registeredModule.querySelector('td:nth-child(2)').textContent;
-              availableModules.forEach(availableModule => {
-                  const availableCode = availableModule.querySelector('td:nth-child(2)').textContent;
-                  if (registeredCode === availableCode) {
-                      availableModule.style.display = 'none';
-                  }
-              });
-          });
-      });
-    </script>
   </body>
 </html>

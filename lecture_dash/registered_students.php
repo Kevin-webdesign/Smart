@@ -7,7 +7,7 @@ $regsql = "SELECT
     m.`name` AS module_name,
     m.`code` AS module_code,
     m.`description` AS module_description,
-    m.`Sessions Offered` AS session_offered,
+    m.`sessions_offered` AS session_offered,
     m.`Lecturer` AS lecturer,
     b.`id` AS user_id,
     b.`first_name`,
@@ -24,6 +24,12 @@ ON
     m.`user_id` = b.`id`";
 
 $regresult = $conn->query($regsql);
+
+// Check if query was successful
+if ($regresult === false) {
+    die("Error executing query: " . $conn->error);
+}
+
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -70,37 +76,45 @@ $conn->close();
           </div>
           
            <!-- content -->
-<h2>Registered Students</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Email</th>
-            <th>Session</th>
-            <th>module</th>
-            <th>Lecture</th>
-        </tr>
-    </thead>
-    <tbody>
-    <?php
-      if ($regresult->num_rows > 0) {
-          while ($row = $regresult->fetch_assoc()) {
-              echo "<tr>
-                      <td>" . htmlspecialchars($row['email']) . "</td>
-                      <td>" . htmlspecialchars($row['session_offered']) . "</td>
-                      <td>". htmlspecialchars($row['module_name']) . "</td>
-                      <td>". htmlspecialchars($row['lecturer']) . "</td>
-                    </tr>";
-          }
-      } else {
-          echo "<tr><td colspan='4'>No students registered yet.</td></tr>";
-      }
-    ?>
-    </tbody>
-</table>
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Registered Students</h2>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Email</th>
+                        <th>Session</th>
+                        <th>Module</th>
+                        <th>Lecturer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php
+                if ($regresult->num_rows > 0) {
+                    while ($row = $regresult->fetch_assoc()) {
+                        echo "<tr>
+                                <td>" . htmlspecialchars($row['email']) . "</td>
+                                <td>" . htmlspecialchars($row['session_offered']) . "</td>
+                                <td>". htmlspecialchars($row['module_name']) . "</td>
+                                <td>". htmlspecialchars($row['lecturer']) . "</td>
+                              </tr>";
+                    }
+                } else {
+                    echo "<tr><td colspan='4' class='text-center'>No students registered yet.</td></tr>";
+                }
+                ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <?php include("../layouts/lecture/footer.php");?>
 </div>
 </div>
 <?php include("../layouts/scripts.php");?>
 </body>
-
 </html>

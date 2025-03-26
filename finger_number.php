@@ -50,7 +50,7 @@ if ($finger_numbers) {
 }
 
 // If all numbers from 1 to 255 are taken
-echo "No available finger number found.";
+echo "1";
 
 // Close the connection
 mysqli_close($conn);

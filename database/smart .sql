@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 24, 2025 at 04:47 PM
+-- Generation Time: Mar 26, 2025 at 09:46 AM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 8.0.30
 
@@ -52,21 +52,12 @@ CREATE TABLE `attendance` (
   `course` varchar(250) NOT NULL,
   `lecture` varchar(255) NOT NULL,
   `entry_time` datetime DEFAULT current_timestamp(),
-  `entry_fingerprint_verified` tinyint(1) DEFAULT 0,
+  `exit_time` datetime DEFAULT NULL,
+  `entry_exit_fingerprint_verified` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `had_extended_absence` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `attendance`
---
-
-INSERT INTO `attendance` (`id`, `student_id`, `course`, `lecture`, `entry_time`, `entry_fingerprint_verified`, `created_at`, `updated_at`, `had_extended_absence`) VALUES
-(23, 2, 'Entreprenuership', 'eddy', '2025-03-24 17:45:17', 0, '2025-03-24 15:45:17', '2025-03-24 15:45:17', 0),
-(24, 3, 'Entreprenuership', 'eddy', '2025-03-24 17:45:17', 0, '2025-03-24 15:45:17', '2025-03-24 15:45:17', 0),
-(25, 4, 'Entreprenuership', 'eddy', '2025-03-24 17:45:17', 0, '2025-03-24 15:45:17', '2025-03-24 15:45:17', 0),
-(26, 5, 'Entreprenuership', 'eddy', '2025-03-24 17:45:17', 0, '2025-03-24 15:45:17', '2025-03-24 15:45:17', 0);
 
 -- --------------------------------------------------------
 
@@ -93,16 +84,10 @@ CREATE TABLE `baseuser` (
 --
 
 INSERT INTO `baseuser` (`id`, `first_name`, `second_name`, `email`, `telephone`, `password`, `is_active`, `is_staff`, `user_type`, `created_at`, `updated_at`) VALUES
-(2, 'donald', 'eddy', 'ed@gmail.com', '07894383932', '$2y$10$0M9KiDrdKLrL6odqY4jGj.cbJV4joTNh6G0hv8IKLC2is8/Bk8CKK', 1, 0, 'Student', '2025-03-24 14:32:21', '2025-03-24 14:46:39'),
-(3, 'edt', 'eddyDo', 'b1@gmail.com', '078928298293', '$2y$10$AASHOrav7u8HzHouABIo0uvHiH.cXFpi.ReFQaLFH7jeUt86n25e.', 1, 0, 'Lecture', '2025-03-24 10:34:09', '2025-03-24 14:47:01'),
-(4, 'stu', 'student2', 'kstudent@gmail.com', '0791813688', '$2y$10$QCC/ibj1A2mB/7m6onPAfONae/F9Yv0a1cQabrF843c3j7H9gRJ62', 1, 0, 'Student', '2025-03-23 15:38:24', '2025-03-24 14:46:46'),
+(3, 'edt', 'eddy', 'b1@gmail.com', '078928298293', '$2y$10$AASHOrav7u8HzHouABIo0uvHiH.cXFpi.ReFQaLFH7jeUt86n25e.', 1, 0, 'Lecture', '2025-03-24 10:34:09', '2025-03-25 07:19:17'),
 (5, 'paccy', 'gisa', 'paccy@gmail.com', '08692387', '$2y$10$noJHl/1AbRMvSMj32trhSOhlSFWUsXp/qh0m0j8HsM5XuUwCfjMPq', 1, 0, 'Lecture', '2025-03-23 12:07:16', '2025-03-24 15:18:40'),
 (16, 'UZAMURERA', 'Kevin', 'kevinuzamurera@gmail.com', '0791888898', '$2y$10$nZSiT4itztuafazjcCPZI.nTzWSqdXrKHHk2xU.WskMUMa6x3oQ6e', 1, 0, 'Admin', '2025-03-20 20:31:35', '2025-03-24 14:46:33'),
-(18, 'Blessing', 'eddy', 'edz@gmail.com', '07883743848', '$2y$10$mpSKnHumRbWt8Fl0R8mjPeQDYbGp/mjvifQHiGRPmcPKHEimbvnau', 1, 0, 'Student', '2025-03-21 12:32:39', '2025-03-21 12:32:39'),
-(19, 'Alexie', 'eddy', 'chuck@gmail.com', '0783939', '$2y$10$fzpsl9SiqxpNQSb9QIl.yeK4hsgxUYI4/D43I9XtX8ev88gSuZwZS', 1, 0, 'Student', '2025-03-21 15:19:43', '2025-03-21 15:19:43'),
-(20, 'placide', 'Kevin', 'placide@gmail.com', '0791888888', '$2y$10$AsVQdmYOPFxqMIDa18c8duPULX3.iReZW.I.MCRuY.1YXMVywwyE.', 1, 0, 'Lecture', '2025-03-23 11:11:32', '2025-03-23 11:11:32'),
-(22, 'gisa', 'student', 'student@gmail.com', '08692387', '$2y$10$Yyd.xBotf/A3xjaScOFFIO4RKUkOW/fQlSuCE2XDl6e7QI5NTqBH.', 1, 0, 'Student', '2025-03-23 13:30:45', '2025-03-23 13:30:45'),
-(23, 'stu', 'student2', 'student2@gmail.com', '0791813688', '$2y$10$H0ZYYvXJK2JFjWNcYhSUIuQaXuODiIvGAeMRa5C9cdTfBoXvv2u3.', 1, 0, 'Student', '2025-03-23 15:37:47', '2025-03-23 15:37:47');
+(20, 'placide', 'Kevin', 'placide@gmail.com', '0791888888', '$2y$10$AsVQdmYOPFxqMIDa18c8duPULX3.iReZW.I.MCRuY.1YXMVywwyE.', 1, 0, 'Lecture', '2025-03-23 11:11:32', '2025-03-23 11:11:32');
 
 -- --------------------------------------------------------
 
@@ -252,7 +237,7 @@ CREATE TABLE `status_finger` (
 --
 
 INSERT INTO `status_finger` (`id`, `f_number`, `f_status`, `f_mode`, `attended`, `time`) VALUES
-(1, 0, 0, 1, '0', '2025-03-24 15:45:17');
+(1, 0, 0, 3, '4', '2025-03-26 08:32:21');
 
 -- --------------------------------------------------------
 
@@ -267,18 +252,6 @@ CREATE TABLE `studentprofile` (
   `student_id` varchar(15) NOT NULL,
   `fingerprint` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `studentprofile`
---
-
-INSERT INTO `studentprofile` (`id`, `user_id`, `session`, `student_id`, `fingerprint`) VALUES
-(4, 26, 'EVENING', '2', '1'),
-(6, 18, 'EVENING', '3', '2'),
-(7, 19, 'EVENING', '5', '3'),
-(8, 22, 'DAY', '4', '4'),
-(10, 23, 'DAY', '1', '5'),
-(11, 28, 'EVENING', '6', '6');
 
 --
 -- Indexes for dumped tables
@@ -370,13 +343,13 @@ ALTER TABLE `adminprofile`
 -- AUTO_INCREMENT for table `attendance`
 --
 ALTER TABLE `attendance`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `baseuser`
 --
 ALTER TABLE `baseuser`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `classroom`
@@ -424,7 +397,7 @@ ALTER TABLE `status_finger`
 -- AUTO_INCREMENT for table `studentprofile`
 --
 ALTER TABLE `studentprofile`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

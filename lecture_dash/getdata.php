@@ -34,13 +34,13 @@ if ($result->num_rows > 0) {
         $fingerprint = trim($fingerprint); // Clean up any extra spaces
         
         // Query to find students with the same fingerprint in the studentprofile table
-        $sql_students = "SELECT student_id FROM studentprofile WHERE fingerprint = '$fingerprint'";
+        $sql_students = "SELECT user_id FROM studentprofile WHERE fingerprint = '$fingerprint'";
         $student_result = $conn->query($sql_students);
         
         // Check if there's a match in studentprofile table
         if ($student_result->num_rows > 0) {
             while ($student_row = $student_result->fetch_assoc()) {
-                $student_id = $student_row['student_id'];
+                $student_id = $student_row['user_id'];
                 
                 // Query to match the student ID with the baseuser table and retrieve the second_name
                 $sql_baseuser = "SELECT id, second_name FROM baseuser WHERE id = '$student_id'";

@@ -37,10 +37,18 @@ if (isset($_GET['load'])) {
             $row = mysqli_fetch_assoc($result);
             $course_name = $row['course'];
 
-            // Step 6: Get current time (current date and time)
+            // Step 6: Fetch the email from the last entry in the baseuser table
+            $email_result = mysqli_query($conn, "SELECT email FROM baseuser ORDER BY id DESC LIMIT 1");
+            if ($email_row = mysqli_fetch_assoc($email_result)) {
+                $user_email = $email_row['email'];
+            } else {
+                $user_email = '';  // Default to an empty string if no email is found
+            }
+
+            // Step 7: Get current time (current date and time)
             $current_time = date('d-m-Y/H:i:s');
 
-            // Step 7: Include the EmailJS script
+            // Step 8: Include the EmailJS script
             echo "
             <script type='text/javascript' src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js'></script>
             <script type='text/javascript'>
@@ -49,7 +57,7 @@ if (isset($_GET['load'])) {
                 emailjs.send('service_e5urxqk', 'template_421ixxa', {
                     Course_name: '$course_name',
                     time: '$current_time',
-                    email: 'donaldirene250@gmail.com'
+                    email: '$user_email'  // Pass the fetched email here
                 })
                 .then(function(response) {
                     console.log('Success:', response);

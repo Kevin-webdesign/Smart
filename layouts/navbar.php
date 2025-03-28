@@ -51,8 +51,8 @@ if (isset($_SESSION['user_id'])) {
             <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
                 <li class="nav-item topbar-user dropdown hidden-caret">
                     <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" id="profileDropdown">
-                        <!-- <img src="assets/img/profile.jpg" alt="Profile" class="avatar-img rounded-circle" onerror="this.onerror=null; this.src='../assets/img/profile.jpg'"/> -->
-                        <i class="fas fa-user mt-2 text-5"></i>
+                        <img src="assets/img/profiledev.jpg" alt="Profile" class="avatar-img rounded-circle" onerror="this.onerror=null; this.src='../assets/img/profiledev.jpg'"/>
+                        <!-- <i class="fas fa-user mt-2 text-5"></i> -->
 
                         <span class="profile-username">
                             <?php echo $user_name; ?>

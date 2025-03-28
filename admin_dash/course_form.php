@@ -1,6 +1,8 @@
 <?php
 include("../config/connection.php");
 
+$alertScript = "";
+
 // Fetch lecturers from baseuser table
 $sql = "SELECT id, first_name, second_name FROM baseuser WHERE user_type = 'Lecture'";
 $result = $conn->query($sql);
@@ -16,8 +18,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $insertQuery = "INSERT INTO course (name, code, description, sessions_offered, lecturer) VALUES ('$name', '$code', '$description', '$sessions_offered', '$lectureuser')";
     
     if ($conn->query($insertQuery) === TRUE) {
-        echo "<script>alert('Course added successfully!'); window.location.href='course_list.php';</script>";
+        // Prepare SweetAlert2 script for a successful insert and redirection.
+        $alertScript = "<script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Course added successfully!',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href='course_list.php';
+            });
+        </script>";
     } else {
+        // Output error message directly if needed.
         echo "Error: " . $insertQuery . "<br>" . $conn->error;
     }
 }
@@ -25,9 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
-  <!-- HEADER / LINKS /  BASIC SCRIPTS -->
+  <!-- HEADER / LINKS / BASIC SCRIPTS -->
   <?php include("../layouts/header.php"); ?>
-  <!-- END HEADER / LINKS /  BASIC SCRIPTS -->
+  <!-- END HEADER / LINKS / BASIC SCRIPTS -->
   <body>
     <div class="wrapper">
       <!-- Sidebar -->
@@ -41,9 +55,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="container">
           <div class="page-inner">
-            
-          <div class="page-header">
-              <h3 class="fw-bold mb-3"></h3>
+            <div class="page-header">
+              <h3 class="fw-bold mb-3">Create Course</h3>
               <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                   <a href="#">
@@ -54,44 +67,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                  <a href="#"></a>
+                  <a href="#">Courses</a>
                 </li>
                 <li class="separator">
                   <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                  <a href="#"></a>
+                  <a href="#">Create</a>
                 </li>
               </ul>
             </div>
           </div>
     
-<body>
-    <h2>Create Course</h2>
-    <form method="POST" action="">
-        <input type="text" name="name" class="form-control" placeholder="Course Name" required>
-        <input type="text" name="code" class="form-control" placeholder="Course Code" required>
-        <textarea name="description" class="form-control" placeholder="Course Description" rows="3"></textarea>
-        <select name="sessions_offered" class="form-control">
-            <option value="DAY">Day</option>
-            <option value="EVENING">Evening</option>
-            <option value="WEEKEND">Weekend</option>
-        </select>
-        <select name="lectureuser" class="form-control" required>
-            <?php while ($row = $result->fetch_assoc()) { ?>
+          <form method="POST" action="">
+            <input type="text" name="name" class="form-control" placeholder="Course Name" required>
+            <input type="text" name="code" class="form-control" placeholder="Course Code" required>
+            <textarea name="description" class="form-control" placeholder="Course Description" rows="3"></textarea>
+            <select name="sessions_offered" class="form-control">
+              <option value="DAY">Day</option>
+              <option value="EVENING">Evening</option>
+              <option value="WEEKEND">Weekend</option>
+            </select>
+            <select name="lectureuser" class="form-control" required>
+              <?php while ($row = $result->fetch_assoc()) { ?>
                 <option value="<?php echo $row['first_name'] . " " . $row['second_name']; ?>">
-                    <?php echo $row['first_name'] . " " . $row['second_name']; ?>
+                  <?php echo $row['first_name'] . " " . $row['second_name']; ?>
                 </option>
-            <?php } ?>
-        </select>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-<?php include("../layouts/admin/footer.php");?>
+              <?php } ?>
+            </select>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+          
+          <?php include("../layouts/admin/footer.php");?>
+        </div>
       </div>
+      
+      <?php include("../layouts/scripts.php");?>
+      <!-- SweetAlert2 CDN -->
+      
+      
+      <!-- Display SweetAlert2 message if course was added -->
+      <?php
+      if (!empty($alertScript)) {
+          echo $alertScript;
+      }
+      ?>
+      
     </div>
-    <?php include("../layouts/scripts.php");?>
   </body>
-
 </html>
 <?php
 $conn->close();

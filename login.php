@@ -38,19 +38,19 @@
         </div>
     </div>
     <?php include("layouts/generic/scripts.php"); ?>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     $(document).ready(function() {
         $("#loginForm").on("submit", function(e) {
             e.preventDefault(); // Prevent the default form submission
 
-            // Serialize form data
-            // const formData = $(this).serialize();
+            // Create form data object
             let formData = {
                 email: $('#id_email').val(),
                 password: $('#id_password').val()
-                
             };
-            console.log("formData ",formData);
+            console.log("formData ", formData);
 
             // Send AJAX request
             $.ajax({
@@ -59,16 +59,34 @@
                 data: formData,
                 success: function(response) {
                     if (response.redirect) {
-                        window.location.href = response.redirect; // Redirect to the dashboard
+                        // Show welcome message and then redirect
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Welcome',
+                            text: 'Login successful!',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = response.redirect;
+                        });
                     } else {
-                        alert(response.message); // Show error message
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: response.message,
+                        });
                     }
                 },
                 error: function(xhr) {
-                    alert("An error occurred. Please try again.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred. Please try again.'
+                    });
                 }
             });
         });
     });
-</script>
+    </script>
 </body>
+</html>

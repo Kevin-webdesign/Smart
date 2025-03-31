@@ -13,6 +13,9 @@ include("../config/connection.php");
 $sql = "SELECT name, code, description, sessions_offered, lecturer FROM course";
 $result = $conn->query($sql);
 
+// Initialize SweetAlert2 script variable
+$alertScript = "";
+
 // Handle module registration
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
     $module_code = $_POST['module_code'];
@@ -28,7 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
     $check_stmt->execute();
     
     if ($check_stmt->get_result()->num_rows > 0) {
-        echo "<script>alert('You are already registered for this module!');</script>";
+        $alertScript = "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'You are already registered for this module!'
+            });
+        </script>";
     } else {
         // Register the module
         $insert_sql = "INSERT INTO moduleregistration (name, code, description, sessions_offered, lecturer, user_id) 
@@ -39,11 +48,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
                          $sessions_offered, $lecturer, $user_id);
         
         if ($stmt->execute()) {
-            echo "<script>alert('Module registered successfully!');</script>";
-            echo "<script>window.location.href=window.location.href;</script>";
-            exit();
+            $alertScript = "<script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Module registered successfully!',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = window.location.href;
+                });
+            </script>";
         } else {
-            echo "<script>alert('Error: " . addslashes($stmt->error) . "');</script>";
+            $alertScript = "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error: " . addslashes($stmt->error) . "'
+                });
+            </script>";
         }
         $stmt->close();
     }
@@ -118,7 +141,6 @@ $conn->close();
                               }
                           }
                           $regresult->data_seek(0);
-                          
                           if (!$is_registered): ?>
                             <tr>
                               <td><?= htmlspecialchars($row['name']) ?></td>
@@ -194,5 +216,12 @@ $conn->close();
     </div>
     
     <?php include("../layouts/scripts.php"); ?>
+    
+    <!-- Display SweetAlert2 message if set -->
+    <?php
+    if (!empty($alertScript)) {
+        echo $alertScript;
+    }
+    ?>
   </body>
 </html>

@@ -132,7 +132,6 @@ $result = $stmt->get_result();
                             <li class="nav-item"><a href="#">Records</a></li>
                         </ul>
                     </div>
-
                     <div class="body">
                     <div class="d-flex align-items-center">
                         <button type="button" class="btn btn-primary " data-bs-toggle="modal" data-bs-target="#exampleModal" style="width:200px;">
@@ -282,7 +281,7 @@ $result = $stmt->get_result();
             updateStatusButton(newStatus); // Update button state immediately
 
             // Send the updated status to the server
-            fetch('https://ercgparish.rw/smart/updateStatus.php', {
+            fetch('https://localhost/smart/lecture_dash/updateStatus.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -306,7 +305,7 @@ $result = $stmt->get_result();
     }
 
     // Fetch the current status from the PHP API and initialize the button
-    fetch('https://ercgparish.rw/smart/getStatus.php')
+    fetch('https://localhost/smart/lecture_dash/getStatus.php')
         .then(response => response.json())
         .then(data => {
             // Assuming `data.status` contains the current status from the database
